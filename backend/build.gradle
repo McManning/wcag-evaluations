@@ -1,0 +1,47 @@
+plugins {
+	id 'java'
+	id 'org.springframework.boot' version '3.1.1'
+	id 'io.spring.dependency-management' version '1.1.0'
+	id 'io.freefair.lombok' version '8.1.0'
+}
+
+group = 'com.sybolt'
+version = '0.0.1-SNAPSHOT'
+
+java {
+	sourceCompatibility = '17'
+}
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+	// implementation 'org.springframework.boot:spring-boot-starter-data-mongodb-reactive'
+	// implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+	implementation 'org.springframework.boot:spring-boot-starter-graphql'
+	implementation 'org.springframework.boot:spring-boot-starter-webflux'
+	implementation 'org.springframework.boot:spring-boot-devtools'
+
+	// For ISO compliant DateTime scalars
+	implementation 'com.tailrocks.graphql:graphql-datetime-spring-boot-starter:6.0.0'
+
+	// For GPT response parsing
+	implementation 'com.jayway.jsonpath:json-path:2.8.0'
+
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testImplementation 'io.projectreactor:reactor-test'
+	testImplementation 'org.springframework.graphql:spring-graphql-test'
+
+	// runtimeOnly 'com.h2database:h2'
+	runtimeOnly 'org.postgresql:postgresql'
+}
+
+bootRun {
+	systemProperties System.properties
+}
+
+tasks.named('test') {
+	useJUnitPlatform()
+}

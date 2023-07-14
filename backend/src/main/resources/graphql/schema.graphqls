@@ -1,0 +1,245 @@
+
+scalar OffsetDateTime
+
+type Query {
+  "Retrieve a specific product under evaluation by ID"
+  productById(id: ID): Product
+
+  "Retrieve all products that have been or are pending evaluation"
+  products: [Product!]!
+
+  "Retrieve a specific evaluation by ID"
+  evaluationById(id: ID!): Evaluation
+
+  "Retrieve all evaluations the user has access to"
+  evaluations: [Evaluation!]
+
+  "GPT-based autocomplete for a partially reported issue"
+  autocompleteIssue(
+    summary: String
+  ): AutocompleteResponse!
+}
+
+type Mutation {
+  createProduct(input: ProductInput!): Product!
+  # updateProduct(input: ProductInput!): Product!
+
+  createEvaluation(input: EvaluationInput!): Evaluation!
+}
+
+enum Impact {
+  "Site or application wide issue"
+  GLOBAL
+
+  "Page-level issue"
+  PAGE
+}
+
+enum Priority {
+  "Blocked content for individuals with disabilities"
+  CRITICAL
+
+  "Serious barriers for individuals with disabilities"
+  SERIOUS
+
+  "Some barriers for individuals with disabilities"
+  MODERATE
+
+  "May inconvenience a user but will not cause significant frustration"
+  MINOR
+}
+
+enum Health {
+  "Digital info or service has one or more issues that present barriers to access with no workarounds"
+  POOR
+
+  "Digital info or service has one or more issues that do not completely block access"
+  FAIR
+
+  "Digital info or service fully meets accessibility standards"
+  MEETS_STANDARDS
+}
+
+enum RiskLevel {
+  "Low: <= 500 Users"
+  A1
+
+  "Medium: 501 - 10,000 Users"
+  A2
+
+  "High: 10,001 - 40,000 Users"
+  A3
+
+  "Critical: >40,000 Users, or Course-Related, or Open to General Public"
+  A4
+}
+
+input ProductInput {
+  id: ID
+
+  "Name of the product evaluated. E.g. Workday"
+  name: String
+
+  """
+  Type of product evaluated. E.g. Website, Application, PDF
+  """
+  type: String
+
+  "Person or department requesting the evaluation"
+  requestedBy: String
+
+  "Requestor's contact information"
+  contact: String
+
+  dateRequested: OffsetDateTime
+
+  description: String
+
+  "Risk is dependent on how many people have access to the application"
+  risk: RiskLevel
+
+  """
+  Work that the evaluator should perform, such as evaluating specific
+  pages of a website or individual components.
+  """
+  scopeOfWork: String
+
+  useCases: [String!]
+}
+
+input EvaluationInput {
+  id: ID
+
+  "Accessibility Coordinator performing this evaluation"
+  preparedBy: String
+
+  "The product evaluated"
+  productId: ID
+
+  issues: [IssueInput!]
+}
+
+input IssueInput {
+  id: ID
+  impact: Impact
+  summary: String
+  details: String
+
+  # "Screenshots of the issue, if applicable"
+  # screenshots: [File!]!
+
+  # "Citations to WCAG standard violations"
+  # references: [WCAGReference!]
+
+  "Suggestion to the developer for remediation"
+  remediation: String
+
+  priority: Priority
+}
+
+"""
+Request for an accessibility evaluation on a product.
+
+To be filled out by the department or individual requiring
+a product evaluation with the assistance of an Accessibility Coordinator.
+"""
+type Product {
+  id: ID!
+
+  name: String!
+
+  """
+  Type of product evaluated. E.g. Website, Application, PDF
+  """
+  type: String!
+
+  "Person or department requesting the evaluation"
+  requestedBy: String
+
+  "Requestor's contact information"
+  contact: String
+
+  dateRequested: OffsetDateTime!
+
+  description: String
+
+  "Risk is dependent on how many people have access to the application"
+  risk: RiskLevel
+
+  """
+  Work that the evaluator should perform, such as evaluating specific
+  pages of a website or individual components.
+  """
+  scopeOfWork: String
+
+  # "Textual description of the functionality being considered for use"
+  # useCases: [UseCase!]
+
+  # Temp: array for frontend stuff.
+  useCases: [String!]
+
+  evaluations: [Evaluation!]
+}
+
+"""
+Full manual evaluation of a product
+"""
+type Evaluation {
+  id: ID!
+
+  "The Accessibility Coordinator performing the full manual evaluation"
+  preparedBy: String! # Person
+
+  """
+  Brief description of the purpose of the service evaluated as well as the
+  technology stack used for evaluation
+  """
+  executiveSummary: String!
+
+  "Accessibility issues found during evaluation"
+  issues: [Issue!]!
+
+  dateCompleted: OffsetDateTime
+
+  "Overall decision on whether or not the product meets standards"
+  health: Health
+
+  "Product under evaluation"
+  product: Product
+}
+
+"""
+Accessibility issue within an evaluated product
+"""
+type Issue {
+  id: ID!
+  impact: Impact!
+  summary: String!
+  details: String!
+
+  # "Screenshots of the issue, if applicable"
+  # screenshots: [File!]!
+
+  "Citations to WCAG standard violations"
+  references: [WCAGReference!]!
+
+  "Suggestion to the developer for remediation"
+  remediation: String!
+
+  priority: Priority!
+}
+
+type WCAGReference {
+  id: ID!
+  title: String!
+  url: String!
+}
+
+type UseCase {
+  id: ID!
+  description: String!
+}
+
+type AutocompleteResponse {
+  text: String
+}

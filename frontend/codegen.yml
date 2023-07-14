@@ -1,0 +1,14 @@
+schema:
+  - ../backend/src/main/resources/graphql/schema.graphqls
+overwrite: true
+
+generates:
+  # src/@types/api/index.d.ts:
+  #   plugins:
+  #     - typescript
+  #   config:
+  #     noExport: true
+  src/graphql/index.ts:
+    plugins:
+      - typescript
+
